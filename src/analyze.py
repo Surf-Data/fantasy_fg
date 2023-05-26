@@ -37,8 +37,13 @@ class analyzer():
 
     def calcVariances(self):
         pass
+    
 
+    def generate_html(self):
+        return self.df[['PlayerName','points']].to_html()
 
+    def generate_dict(self):
+        return self.df[['PlayerName','points']].to_dict()
 
 class league(League):
     pass

@@ -12,7 +12,7 @@ load_dotenv()  # take environment variables from .env.
 current = int(time.time())
 def scraper(player_type='bat'):
     try:
-        cached_dir = f'fantasy_fg/src/cache/{player_type}/'
+        cached_dir = f'cache/{player_type}/'
         cached_files = os.listdir(cached_dir)
         if len(cached_files) > 1:
             status_code = subprocess.run( "rm "+cached_dir+'*',shell=True,check=True)
@@ -38,12 +38,12 @@ def scraper(player_type='bat'):
     
 if __name__ == '__main__':
     from analyze import analyzer,league
-    player_type = 'sta'
+    player_type = 'bat'
     results = scraper(player_type)
     A = analyzer(results['data'],player_type)
     #sub = A.df.loc[A.df.PlayerName.isin(['Kodai Senga','Tony Gonsolin','Sonny Gray','Zack Wheeler'])]
-    #sub = A.df.loc[A.df.PlayerName.isin(['Mike Trout','Bryce Harper','Brandon Lowe','Tim Anderson','Paul Dejong','Bryson Stott','Matt McLain','Royce Lewis','Hunter Renfroe','Steven Kwan'])][['PlayerName','PA','R','RBI','points']]
-    #print(sub[['PlayerName','points']])
+    sub = A.df.loc[A.df.PlayerName.isin(['Mike Trout','Bryce Harper','J.D. Martinez','Brandon Lowe','Tim Anderson','Paul Dejong','Bryson Stott','Matt McLain','Royce Lewis','Hunter Renfroe','Steven Kwan'])][['PlayerName','PA','R','RBI','points']]
+    print(sub[['PlayerName','points']])
 
     l = league(league_id=os.environ['league_id']
                , year=2023
