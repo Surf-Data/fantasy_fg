@@ -4,14 +4,19 @@ import json
 import os
 import time
 from analyze import analyzer,league
+from dotenv import load_dotenv
+import subprocess
+
+load_dotenv()  # take environment variables from .env.
 
 
 current = int(time.time())
 def scraper(player_type='bat'):
     try:
-        cached_dir = f'./cache/{player_type}/'
+        cached_dir = f'cache/{player_type}/'
         cached_files = os.listdir(cached_dir)
         if len(cached_files) > 1:
+            status_code = subprocess.run( "rm "+cached_dir+'*',shell=True,check=True)
             raise Exception("Error: multiple files in cache")
         elif len(cached_files) == 0:
             raise Exception("Error: No cached files")
@@ -33,19 +38,19 @@ def scraper(player_type='bat'):
     
     
 if __name__ == '__main__':
-    player_type = 'bat'
+    player_type = 'sta'
     results = scraper(player_type)
     A = analyzer(results['data'],player_type)
     #sub = A.df.loc[A.df.PlayerName.isin(['Kodai Senga','Tony Gonsolin','Sonny Gray','Zack Wheeler'])]
-    sub = A.df.loc[A.df.PlayerName.isin(['Mike Trout','Bryce Harper','Brandon Lowe','Tim Anderson','Paul Dejong','Bryson Stott','Matt McLain','Royce Lewis','Hunter Renfroe','Steven Kwan'])][['PlayerName','PA','R','RBI','points']]
-    print(sub[['PlayerName','points']])
+    #sub = A.df.loc[A.df.PlayerName.isin(['Mike Trout','Bryce Harper','Brandon Lowe','Tim Anderson','Paul Dejong','Bryson Stott','Matt McLain','Royce Lewis','Hunter Renfroe','Steven Kwan'])][['PlayerName','PA','R','RBI','points']]
+    #print(sub[['PlayerName','points']])
 
-    l = league(league_id=62327662, year=2023
-    
-    ,espn_s2='AEAT41tYcBB34PpSnrEIgXkIV%2BIaBzzE5YZJQiagiBNsn0i6nT1quZmJGXD9GyYOe7Gg4G64RkPU8YDMzYeHP6c%2FWm%2FKV%2BsA1J2A90GmoQhLBzRFdYUQCm7RxgIMgkI3698batUh5sEC34%2BHMXgkrb0Sue6LrcSwLmVMy71zNEwBB3GuV6Hf9s4npm%2BEFMi0NOlY2vbkoYgh%2FiFlU1cBWATsHeSj2AOeh0hgPydBWS0VvfnvYXJ3bu7YDt9eHI62EzheVUFJK0opN7ByNPBdDprZ'
-    ,swid='{1BDC6D75-03CD-4D91-9C6D-7503CDFD9132}')
-    fas = l.free_agents(size=100,position_id=14
-    )
+    l = league(league_id=os.environ['league_id']
+               , year=2023
+                ,espn_s2=os.environ['espn_s2']
+                ,swid=os.environ['swid']
+                )
+    fas = l.free_agents(size=100,position_id=14)
     fa_names = []
     for fa in fas:
        fa_names.append(fa.name)
