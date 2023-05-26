@@ -18,6 +18,7 @@ class analyzer():
             self.df['walks'] = self.df['BB%']*self.df.PA
             self.df['Ks'] = self.df['K%']*self.df.PA
             self.df['points'] = self.df.tb +self.df.walks +self.df.SB-self.df.Ks+self.df.R+self.df.RBI
+            self.df.points = self.df.points.astype(int)
         
         if self.player_type == 'sta':
             self.df['minpos'] ='P'
