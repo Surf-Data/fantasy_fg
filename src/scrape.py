@@ -12,7 +12,7 @@ load_dotenv()  # take environment variables from .env.
 current = int(time.time())
 def scraper(player_type='bat'):
     try:
-        cached_dir = f'cache/{player_type}/'
+        cached_dir = f'fantasy_fg/src/cache/{player_type}/'
         cached_files = os.listdir(cached_dir)
         if len(cached_files) > 1:
             status_code = subprocess.run( "rm "+cached_dir+'*',shell=True,check=True)

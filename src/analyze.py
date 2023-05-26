@@ -43,7 +43,7 @@ class analyzer():
         return self.df[['PlayerName','points']].to_html()
 
     def generate_dict(self):
-        return self.df[['PlayerName','points']].to_dict()
+        return self.df[['PlayerName','points']].to_dict('records')
 
 class league(League):
     pass
