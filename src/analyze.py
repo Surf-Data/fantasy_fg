@@ -10,7 +10,8 @@ class analyzer():
     def __init__(self,data,player_type='bat',free_agents=False):
         self.df = pd.DataFrame(data)#[['PlayerName','minpos','AB','PA','SLG','BB%','RBI','R','SB','K%','SO']]
         self.player_type = player_type
-        self.free_agents = free_agents
+        self.free_agents = "True" == free_agents
+
 
         self.calcPoints()
         self.filters()
@@ -52,15 +53,19 @@ class analyzer():
         return {"Mean":mean,"Median":median,"Top 20 Mean":top_20_mean,"Top 20 Median": top_20_median}
 
     def get_free_agents(self):
-        l = league(league_id=os.environ['league_id']
+        try:
+            l = league(league_id=os.environ['league_id']
                , year=2023
                 ,espn_s2=os.environ['espn_s2']
                 ,swid=os.environ['swid']
                 )
+        except Exception as E:
+            print(E)
+
         position_id = None
         if self.player_type == 'sta':
             position_id = 14
-        fas = l.free_agents(size=100,position_id=14)
+        fas = l.free_agents(size=100,position_id=position_id)
         fa_names = []
         for fa in fas:
             fa_names.append(fa.name)
