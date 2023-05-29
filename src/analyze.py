@@ -1,16 +1,23 @@
 import pandas as pd
 from datetime import date
 from espn_api.baseball import League
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 class analyzer():
-    def __init__(self,data,player_type='bat'):
+    def __init__(self,data,player_type='bat',free_agents=False):
         self.df = pd.DataFrame(data)#[['PlayerName','minpos','AB','PA','SLG','BB%','RBI','R','SB','K%','SO']]
         self.player_type = player_type
+        self.free_agents = free_agents
+
         self.calcPoints()
-        #self.filters()
+        self.filters()
         self.df = self.df.sort_values('points',ascending=False
         ).reset_index(drop=True)
-        #print(self.df.columns)
+
+
     
     def calcPoints(self):
         if self.player_type == 'bat':
@@ -25,16 +32,39 @@ class analyzer():
             self.df['points'] = (self.df.IP*3) - (self.df.ER*2) + (self.df.W*2) - (self.df.L*2) + (self.df.SV*5) + (self.df.SO) - (self.df.H) - (self.df.BB) + (self.df.HLD *2)
     
     def filters(self):
+        if self.free_agents:
+            self.get_free_agents()
         #self.df['ptsQuant'] = 100 - pd.qcut(self.df.points,100,labels=False)
-        g = self.df.groupby('minpos')
-        ranks = g.points.rank(method='min',ascending=False)
-        self.df['pointsPositionRank'] = ranks
-        self.df = self.df.loc[(self.df.pointsPositionRank<=20) | 
-                              ((self.df.minpos == 'OF') & (self.df.pointsPositionRank<=40)) | 
-                              ((self.df.minpos == 'P') & (self.df.pointsPositionRank<=120))
-                              ].copy()
+        # g = self.df.groupby('minpos')
+        # ranks = g.points.rank(method='min',ascending=False)
+        # self.df['pointsPositionRank'] = ranks
+        # self.df = self.df.loc[(self.df.pointsPositionRank<=20) | 
+        #                       ((self.df.minpos == 'OF') & (self.df.pointsPositionRank<=40)) | 
+        #                       ((self.df.minpos == 'P') & (self.df.pointsPositionRank<=120))
+        #                       ].copy()
+    def get_summary_stats(self):
+        mean = self.df.points.mean()
+        median = self.df.points.median()
+        top_20 = self.df.loc[self.df.points.rank(method='min',ascending=False) <= 20].copy()
+        top_20_mean = top_20.points.mean()
+        top_20_median = top_20.points.median()
 
+        return {"Mean":mean,"Median":median,"Top 20 Mean":top_20_mean,"Top 20 Median": top_20_median}
 
+    def get_free_agents(self):
+        l = league(league_id=os.environ['league_id']
+               , year=2023
+                ,espn_s2=os.environ['espn_s2']
+                ,swid=os.environ['swid']
+                )
+        position_id = None
+        if self.player_type == 'sta':
+            position_id = 14
+        fas = l.free_agents(size=100,position_id=14)
+        fa_names = []
+        for fa in fas:
+            fa_names.append(fa.name)
+        self.df = self.df.loc[self.df.PlayerName.isin(fa_names)].copy()
 
     def calcVariances(self):
         pass
